@@ -1,0 +1,689 @@
+<html><head><base href="." /><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>CHOOSE THE RIGHT DOOR | Horror Pixel Game</title><style>
+:root {
+    --blood: #8b0000;
+    --shadow: #1a0000;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0505;
+    font-family: 'Press Start 2P', cursive;
+    color: var(--blood);
+    overflow: hidden;
+}
+
+.glitch-container {
+    position: relative;
+}
+
+.glitch {
+    font-size: 3em;
+    text-align: center;
+    position: relative;
+    animation: glitch 2s infinite;
+    text-shadow: 2px 2px var(--shadow);
+    letter-spacing: -2px;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    20% { transform: translate(-3px, 3px); filter: hue-rotate(90deg); }
+    40% { transform: translate(-3px, -3px); filter: hue-rotate(180deg); }
+    60% { transform: translate(3px, 3px); filter: hue-rotate(270deg); }
+    80% { transform: translate(3px, -3px); filter: hue-rotate(360deg); }
+    100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(
+        45deg,
+        #050505 0px,
+        #050505 5px,
+        #000000 5px,
+        #000000 10px
+    );
+    image-rendering: pixelated;
+}
+
+.doors-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.door {
+    width: 120px;
+    height: 180px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180"><rect width="110" height="170" x="5" y="5" fill="%23331a04" stroke="%23241203" stroke-width="4"/><circle cx="95" cy="90" r="8" fill="%23906214"/></svg>');
+    cursor: pointer;
+    transition: all 0.3s ease;
+    image-rendering: pixelated;
+    border: 4px solid #111;
+    box-shadow: inset 0 0 10px #000;
+}
+
+.door:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2) contrast(1.2);
+}
+
+.stage-info {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px var(--shadow);
+    background: #0000009c;
+    padding: 10px 20px;
+    border: 2px solid var(--blood);
+}
+
+.scenario-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
+    color: var(--blood);
+    text-align: center;
+    text-shadow: 3px 3px #000;
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border: 3px solid var(--blood);
+    display: none;
+    z-index: 900;
+    white-space: pre-line;
+    image-rendering: pixelated;
+}
+
+.jumpscare {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: shake 0.1s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(5px, 5px) rotate(5deg); }
+    50% { transform: translate(0, -5px) rotate(0deg); }
+    75% { transform: translate(-5px, 5px) rotate(-5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.jumpscare svg {
+    width: 90vmin;
+    height: 90vmin;
+    filter: contrast(2) brightness(1.5);
+}
+
+.start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.start-btn {
+    padding: 20px 40px;
+    font-size: 1.5em;
+    background: var(--blood);
+    color: white;
+    border: 4px solid #400;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    image-rendering: pixelated;
+}
+
+.start-btn:hover {
+    transform: scale(1.1);
+    background: #a00;
+    box-shadow: 0 0 20px var(--blood);
+}
+
+/* New Horror Scene styles */
+.horror-scene {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #030303;
+    z-index: 1500;
+    cursor: crosshair;
+    overflow: hidden;
+}
+
+.monster {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    animation: monsterFloat 2s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    z-index: 1550;
+}
+
+.monster:hover {
+    transform: scale(1.1);
+}
+
+.monster svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 5px #0000ff);
+}
+
+@keyframes monsterFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.bullet-hole {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(139, 0, 0, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.score {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: var(--blood);
+    z-index: 1600;
+    font-family: 'Press Start 2P';
+    text-shadow: 2px 2px #000;
+}
+
+.ammo {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
+    color: var(--blood);
+    z-index: 1600;
+    font-family: 'Press Start 2P';
+    text-shadow: 2px 2px #000;
+}
+
+.muzzle-flash {
+    position: fixed;
+    pointer-events: none;
+    width: 50px;
+    height: 50px;
+    z-index: 1700;
+    display: none;
+}
+
+.reload-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background: var(--blood);
+    color: white;
+    border: 2px solid #400;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+    z-index: 1600;
+    font-size: 16px;
+    text-shadow: 2px 2px #000;
+}
+
+.reload-btn:hover {
+    background: #a00;
+    transform: scale(1.05);
+}
+
+.reload-btn:disabled {
+    background: #444;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.goal-display {
+    position: fixed;
+    top: 60px;
+    left: 20px;
+    font-size: 24px;
+    color: var(--blood);
+    z-index: 1600;
+    font-family: 'Press Start 2P';
+    text-shadow: 2px 2px #000;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="start-screen">
+    <div class="glitch-container">
+        <h1 class="glitch">CHOOSE THE RIGHT DOOR</h1>
+    </div>
+    <button class="start-btn">START GAME</button>
+</div>
+
+<div class="game-container">
+    <div class="stage-info">Stage: <span id="stage">1</span>/10</div>
+    <div class="doors-container">
+        <div class="door" data-door="1"></div>
+        <div class="door" data-door="2"></div>
+        <div class="door" data-door="3"></div>
+    </div>
+</div>
+
+<div class="scenario-text"></div>
+
+<div class="jumpscare">
+    <svg viewBox="0 0 100 100">
+        <defs>
+            <filter id="distortion">
+                <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/>
+                <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+        </defs>
+        <path d="M10,10 Q50,0 90,10 Q100,50 90,90 Q50,100 10,90 Q0,50 10,10" fill="#ff0000" stroke="#660000" stroke-width="3" filter="url(#distortion)">
+            <animate attributeName="d" dur="0.05s" repeatCount="indefinite"
+                values="M10,10 Q50,0 90,10 Q100,50 90,90 Q50,100 10,90 Q0,50 10,10;
+                        M15,15 Q50,5 85,15 Q95,50 85,85 Q50,95 15,85 Q5,50 15,15;
+                        M10,10 Q50,0 90,10 Q100,50 90,90 Q50,100 10,90 Q0,50 10,10"/>
+        </path>
+    </svg>
+</div>
+
+<div class="horror-scene">
+    <div class="score">Kills: <span id="killCount">0</span></div>
+    <div class="goal-display">Goal: <span id="killGoal">0</span></div>
+    <div class="ammo">Ammo: <span id="ammoCount">12</span></div>
+    <button class="reload-btn">RELOAD</button>
+    <div class="muzzle-flash">
+        <svg viewBox="0 0 100 100">
+            <polygon points="50,0 65,35 100,50 65,65 50,100 35,65 0,50 35,35" fill="#ff6600"/>
+        </svg>
+    </div>
+</div>
+
+<script>
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let currentStage = 1;
+let correctDoor = 1;
+let requiredKills = 10;
+let isReloading = false;
+
+const scenarios = {
+    good: [
+        "You found a safe haven...\nA moment of respite in this nightmare.",
+        "An ancient protection spell shields you...\nYou feel stronger.",
+        "A friendly spirit guides your way...\nYou survive to face the next challenge.",
+        "Divine light cleanses your path...\nYour courage grows stronger.",
+        "You discover a hidden sanctuary...\nHope remains alive."
+    ],
+    bad: [
+        "The door creaks open to reveal\nyour worst nightmares...",
+        "A thousand eyes stare back at you\nfrom the darkness...",
+        "The room is filled with\nwrithing shadows...",
+        "Ancient evil awakens\nto claim your soul...",
+        "The darkness hungers\nfor your flesh..."
+    ]
+};
+
+let killCount = 0;
+let ammo = 12;
+let monsters = [];
+const MONSTER_SPAWN_INTERVAL = 1000;
+let spawnInterval;
+
+function createScarySound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+    
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(30, audioContext.currentTime + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function createJumpscareSound() {
+    const oscillator1 = audioContext.createOscillator();
+    const oscillator2 = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator1.connect(gainNode);
+    oscillator2.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator1.type = 'square';
+    oscillator2.type = 'sawtooth';
+    
+    oscillator1.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator2.frequency.setValueAtTime(808, audioContext.currentTime);
+    
+    oscillator1.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+    oscillator2.frequency.exponentialRampToValueAtTime(95, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0.6, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    
+    oscillator1.start();
+    oscillator2.start();
+    oscillator1.stop(audioContext.currentTime + 0.2);
+    oscillator2.stop(audioContext.currentTime + 0.2);
+}
+
+function showScenario(type) {
+    const scenarioText = document.querySelector('.scenario-text');
+    scenarioText.textContent = scenarios[type][Math.floor(Math.random() * scenarios[type].length)];
+    scenarioText.style.display = 'block';
+    setTimeout(() => {
+        scenarioText.style.display = 'none';
+    }, 3000);
+}
+
+function startGame() {
+    document.querySelector('.start-screen').style.display = 'none';
+    audioContext.resume();
+    createScarySound();
+    setCorrectDoor();
+}
+
+function setCorrectDoor() {
+    correctDoor = Math.floor(Math.random() * 3) + 1;
+}
+
+function showJumpscare() {
+    const jumpscare = document.querySelector('.jumpscare');
+    jumpscare.style.display = 'flex';
+    createJumpscareSound();
+    showScenario('bad');
+    
+    setTimeout(() => {
+        jumpscare.style.display = 'none';
+        currentStage = 1;
+        document.getElementById('stage').textContent = currentStage;
+        setCorrectDoor();
+    }, 2000);
+}
+
+function handleDoorClick(door) {
+    const doorNumber = parseInt(door.dataset.door);
+    
+    if (doorNumber === correctDoor) {
+        createScarySound();
+        showScenario('good');
+        currentStage++;
+        
+        if (currentStage > 10) {
+            alert('Congratulations! You survived all stages!');
+            currentStage = 1;
+        }
+        
+        document.getElementById('stage').textContent = currentStage;
+        setCorrectDoor();
+    } else {
+        createScarySound();
+        startHorrorScene();
+    }
+}
+
+function startTimer() {
+    const timerDisplay = document.createElement('div');
+    timerDisplay.style.position = 'fixed';
+    timerDisplay.style.top = '20px';
+    timerDisplay.style.right = '20px';
+    timerDisplay.style.color = 'var(--blood)';
+    timerDisplay.style.fontSize = '24px';
+    timerDisplay.style.fontFamily = "'Press Start 2P'";
+    timerDisplay.style.zIndex = '1600';
+    timerDisplay.style.textShadow = '2px 2px #000';
+    
+    document.querySelector('.horror-scene').appendChild(timerDisplay);
+    
+    let timeLeft = 30;
+    
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            showJumpscare();
+            resetHorrorScene();
+        }
+    }, 1000);
+    
+    // Store the interval ID to clear it when needed
+    window.currentTimerInterval = countdown;
+}
+
+function startHorrorScene() {
+    const horrorScene = document.querySelector('.horror-scene');
+    horrorScene.style.display = 'block';
+    
+    // Set required kills based on stage
+    requiredKills = currentStage >= 5 ? 20 : 10;
+    
+    resetHorrorSceneState();
+    document.getElementById('killGoal').textContent = requiredKills;
+    startTimer();
+    
+    // Create initial monsters
+    for (let i = 0; i < 3; i++) {
+        createMonster();
+    }
+    
+    // Start spawning more monsters
+    spawnInterval = setInterval(createMonster, MONSTER_SPAWN_INTERVAL);
+    setupShootingControls();
+    setupReloadButton();
+}
+
+function resetHorrorScene() {
+    clearInterval(spawnInterval);
+    clearInterval(window.currentTimerInterval);
+    document.querySelector('.horror-scene').style.display = 'none';
+    document.querySelector('.horror-scene').innerHTML = `
+        <div class="score">Kills: <span id="killCount">0</span></div>
+        <div class="goal-display">Goal: <span id="killGoal">0</span></div>
+        <div class="ammo">Ammo: <span id="ammoCount">12</span></div>
+        <button class="reload-btn">RELOAD</button>
+        <div class="muzzle-flash">
+            <svg viewBox="0 0 100 100">
+                <polygon points="50,0 65,35 100,50 65,65 50,100 35,65 0,50 35,35" fill="#ff6600"/>
+            </svg>
+        </div>
+    `;
+    resetHorrorSceneState();
+}
+
+function resetHorrorSceneState() {
+    killCount = 0;
+    ammo = 12;
+    monsters = [];
+    isReloading = false;
+    document.getElementById('killCount').textContent = killCount;
+    document.getElementById('ammoCount').textContent = ammo;
+    document.querySelectorAll('.monster').forEach(m => m.remove());
+    document.querySelectorAll('.bullet-hole').forEach(b => b.remove());
+}
+
+function createMonster() {
+    const monster = document.createElement('div');
+    monster.className = 'monster';
+    monster.innerHTML = `
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#000066" />
+            <circle cx="35" cy="40" r="10" fill="#0000ff" />
+            <circle cx="65" cy="40" r="10" fill="#0000ff" />
+            <path d="M30,70 Q50,80 70,70" stroke="#0000ff" fill="none" stroke-width="5" />
+        </svg>
+    `;
+    
+    const horrorScene = document.querySelector('.horror-scene');
+    horrorScene.appendChild(monster);
+    
+    const x = Math.random() * (window.innerWidth - 40);
+    const y = Math.random() * (window.innerHeight - 40);
+    monster.style.left = `${x}px`;
+    monster.style.top = `${y}px`;
+    
+    monsters.push(monster);
+    
+    monster.addEventListener('click', (e) => {
+        if (ammo > 0) {
+            killMonster(monster, e);
+        }
+    });
+}
+
+function setupShootingControls() {
+    const horrorScene = document.querySelector('.horror-scene');
+    
+    horrorScene.addEventListener('click', (e) => {
+        if (ammo > 0) {
+            shoot(e);
+        }
+    });
+}
+
+function shoot(e) {
+    ammo--;
+    document.getElementById('ammoCount').textContent = ammo;
+    
+    // Create bullet hole
+    const bulletHole = document.createElement('div');
+    bulletHole.className = 'bullet-hole';
+    bulletHole.style.left = `${e.clientX - 5}px`;
+    bulletHole.style.top = `${e.clientY - 5}px`;
+    document.querySelector('.horror-scene').appendChild(bulletHole);
+    
+    // Show muzzle flash
+    const muzzleFlash = document.querySelector('.muzzle-flash');
+    muzzleFlash.style.left = `${e.clientX - 25}px`;
+    muzzleFlash.style.top = `${e.clientY - 25}px`;
+    muzzleFlash.style.display = 'block';
+    setTimeout(() => muzzleFlash.style.display = 'none', 50);
+    
+    // Create gunshot sound
+    createGunshotSound();
+    
+    setTimeout(() => bulletHole.remove(), 2000);
+}
+
+function createGunshotSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function killMonster(monster, e) {
+    monster.remove();
+    monsters = monsters.filter(m => m !== monster);
+    killCount++;
+    document.getElementById('killCount').textContent = killCount;
+    
+    // Check if goal is reached
+    if (killCount >= requiredKills) {
+        clearInterval(spawnInterval);
+        clearInterval(window.currentTimerInterval);
+        showScenario('good');
+        setTimeout(() => {
+            resetHorrorScene();
+            currentStage++;
+            if (currentStage > 10) {
+                alert('Congratulations! You survived all stages!');
+                currentStage = 1;
+            }
+            document.getElementById('stage').textContent = currentStage;
+            setCorrectDoor();
+        }, 1500);
+    }
+    
+    // Create death effect
+    const deathEffect = document.createElement('div');
+    deathEffect.className = 'bullet-hole';
+    deathEffect.style.left = `${e.clientX - 5}px`;
+    deathEffect.style.top = `${e.clientY - 5}px`;
+    deathEffect.style.transform = 'scale(3)';
+    deathEffect.style.opacity = '0.8';
+    document.querySelector('.horror-scene').appendChild(deathEffect);
+    setTimeout(() => deathEffect.remove(), 1000);
+}
+
+function setupReloadButton() {
+    const reloadBtn = document.querySelector('.reload-btn');
+    reloadBtn.addEventListener('click', () => {
+        if (!isReloading && ammo < 12) {
+            isReloading = true;
+            reloadBtn.disabled = true;
+            reloadBtn.textContent = 'RELOADING...';
+            
+            setTimeout(() => {
+                ammo = 12;
+                document.getElementById('ammoCount').textContent = ammo;
+                isReloading = false;
+                reloadBtn.disabled = false;
+                reloadBtn.textContent = 'RELOAD';
+            }, 2000);
+        }
+    });
+}
+
+// Previous event listeners remain the same
+document.querySelector('.start-btn').addEventListener('click', startGame);
+
+document.querySelectorAll('.door').forEach(door => {
+    door.addEventListener('click', () => handleDoorClick(door));
+});
+</script>
+</body></html>
