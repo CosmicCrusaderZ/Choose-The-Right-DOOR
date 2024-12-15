@@ -277,10 +277,97 @@ body {
     font-family: 'Press Start 2P';
     text-shadow: 2px 2px #000;
 }
+
+/* Device selection styles */
+.device-select-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.device-buttons {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.device-btn {
+    padding: 20px 40px;
+    font-size: 1.5em;
+    background: var(--blood);
+    color: white;
+    border: 4px solid #400;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.device-btn:hover {
+    transform: scale(1.1);
+    background: #a00;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .doors-container {
+        gap: 10px;
+    }
+    
+    .door {
+        width: 80px;
+        height: 120px;
+    }
+    
+    .glitch {
+        font-size: 1.5em;
+    }
+    
+    .stage-info {
+        font-size: 1em;
+    }
+    
+    .scenario-text {
+        font-size: 1.2em;
+        padding: 10px;
+    }
+    
+    .score, .ammo, .goal-display {
+        font-size: 16px;
+    }
+    
+    .reload-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    
+    .start-btn, .device-btn {
+        font-size: 1.2em;
+        padding: 15px 30px;
+    }
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div class="device-select-screen">
+    <div class="glitch-container">
+        <h1 class="glitch">SELECT YOUR DEVICE</h1>
+    </div>
+    <div class="device-buttons">
+        <button class="device-btn" data-device="phone">PHONE</button>
+        <button class="device-btn" data-device="pc">LAPTOP/PC</button>
+    </div>
+</div>
 
 <div class="start-screen">
     <div class="glitch-container">
@@ -330,6 +417,76 @@ body {
 </div>
 
 <script>
+let deviceType = null;
+
+function initDeviceSelection() {
+    const deviceBtns = document.querySelectorAll('.device-btn');
+    deviceBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            deviceType = e.target.dataset.device;
+            document.querySelector('.device-select-screen').style.display = 'none';
+            document.querySelector('.start-screen').style.display = 'flex';
+            
+            // Apply device-specific adjustments
+            if (deviceType === 'phone') {
+                adjustForMobile();
+            }
+        });
+    });
+}
+
+function adjustForMobile() {
+    // Adjust monster spawn positions for mobile
+    const horrorScene = document.querySelector('.horror-scene');
+    const originalCreateMonster = createMonster;
+    
+    createMonster = function() {
+        const monster = document.createElement('div');
+        monster.className = 'monster';
+        monster.innerHTML = `
+            <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#000066" />
+                <circle cx="35" cy="40" r="10" fill="#0000ff" />
+                <circle cx="65" cy="40" r="10" fill="#0000ff" />
+                <path d="M30,70 Q50,80 70,70" stroke="#0000ff" fill="none" stroke-width="5" />
+            </svg>
+        `;
+        
+        horrorScene.appendChild(monster);
+        
+        // Adjust spawn area for mobile screens
+        const x = Math.random() * (window.innerWidth - 60);
+        const y = Math.random() * (window.innerHeight - 60);
+        monster.style.left = `${x}px`;
+        monster.style.top = `${y}px`;
+        
+        // Make monsters slightly bigger on mobile
+        monster.style.width = '80px';
+        monster.style.height = '80px';
+        
+        monsters.push(monster);
+        
+        monster.addEventListener('click', (e) => {
+            if (ammo > 0) {
+                killMonster(monster, e);
+            }
+        });
+    };
+}
+
+// Modify the startGame function
+function startGame() {
+    if (!deviceType) {
+        alert('Please select your device type first!');
+        return;
+    }
+    document.querySelector('.start-screen').style.display = 'none';
+    audioContext.resume();
+    createScarySound();
+    setCorrectDoor();
+}
+
+// Existing script content...
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let currentStage = 1;
 let correctDoor = 1;
@@ -416,13 +573,6 @@ function showScenario(type) {
     setTimeout(() => {
         scenarioText.style.display = 'none';
     }, 3000);
-}
-
-function startGame() {
-    document.querySelector('.start-screen').style.display = 'none';
-    audioContext.resume();
-    createScarySound();
-    setCorrectDoor();
 }
 
 function setCorrectDoor() {
@@ -679,11 +829,15 @@ function setupReloadButton() {
     });
 }
 
-// Previous event listeners remain the same
 document.querySelector('.start-btn').addEventListener('click', startGame);
 
 document.querySelectorAll('.door').forEach(door => {
     door.addEventListener('click', () => handleDoorClick(door));
 });
+
+initDeviceSelection();
+
+// Hide the start screen initially
+document.querySelector('.start-screen').style.display = 'none';
 </script>
 </body></html>
